@@ -1,0 +1,107 @@
+Utility for creating a pipe from a shell script.
+
+Description
+===========
+mkpipe  make a pipe, print to stdout own pid and wait until killed by a
+caller.  mkpipe is intended to be used from a bash script when there is
+a  need  to  collect  an  output  from  more  than one descriptor sepa-
+rately(i.e. stdout and stderr). For example, if we have some program(or
+another  script)  that  output to stdout some needed data on success or
+output to stderr an error message on failure and these messages are in-
+termixed.  Or  we  need  to run many programs in a subshell and process
+stdout and stderr separately.
+
+After start mkpipe create a pipe with descriptor 3 connected to it read
+end and descriptor 4 connected to it write end.  After that, it reports
+it own pid to stdout and wait with help of pause() call.
+
+There is mkpipe.sh which is usually located in /usr/lib/mkpipe/.   This
+utility  script  contains  3  useful  functions which simplify using of
+mkpipe in your scripts. See MKPIPE.SH section below.
+
+
+Install
+=======
+
+make install command will install mkpipe binary in /usr/local/bin/
+and mkpipe.sh in /usr/lib/mkpipe/.
+
+Options
+=======
+
+-B       create pipe with O_NONBLOCK
+-c       create pipe with O_CLOEXEC
+-s BYTES set pipe size to BYTES
+-v       show program version
+-h       show this help
+
+Using
+=====
+
+Include mkpipe.sh in your script:
+
+. /usr/lib/mkpipe/mkpipe.sh
+
+Then use it:
+
+mkpipe 5 6
+({
+  SOME
+  SCRIPT
+  HERE
+} 1>&6)
+read_all data <&5
+
+echo $data
+
+rmpipe 5 6
+
+Examples
+========
+
+See example.sh.
+
+Rationale
+=========
+
+Sometimes there is need to execute some commands in a subshell and we need to
+collect an output from stdout and stderr(and sometimes from even more file
+descriptors; e.g. our script need to collect an output from 4 fd - 1, 2, 3
+and 4 - where 1 is used for a data, 2 for errors, 3 is used for error which
+should be sent to a client and 4 for debug messages).
+Thus, simple:
+
+data=$(commands here)
+
+isn't enough for this case. We can use files as a temporary storage for an output:
+
+({commands here} >data.out 2>err.out 3>err_client.out 4>debug.out)
+
+But with read-only fs this doesn't work.
+
+We can use the next shell function:
+
+# Create a pipe
+#  $1 - read fd
+#  $2 - write fd
+mkpipe()
+{
+	local PID1 PID2
+	local FD_READ FD_WRITE
+
+	FD_READ=$1
+	FD_WRITE=$2
+	tail -f /dev/null | tail -f /dev/null &
+	PID2=$!
+	PID1=`jobs -p %+`
+	# Is this enough to finish with children?
+	sleep 1s
+	eval "exec $FD_READ</proc/$PID2/fd/0 $FD_WRITE>/proc/$PID1/fd/1"
+	disown $PID1
+	kill $PID1 $PID2
+}
+
+But look at sleep call. Here we have a race condition.
+How big it should be in order to be guaranteed to work correctly?
+So, we need something that do not require a magic with timeout
+tweaking.

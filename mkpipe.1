@@ -1,0 +1,122 @@
+.\" groff -man -Tascii mkpipe.1 | less
+.\" ln -s . man1; MANPATH=. man mkpipe
+.TH MKPIPE 1 "2021.04.16" Linux "User Commands"
+.SH NAME
+mkpipe \- create a pipe
+.\"
+.SH SYNOPSIS
+.B mkpipe
+[\fI\,OPTIONS\/\fR]
+.\"
+.SH DESCRIPTION
+mkpipe make a pipe, print to stdout own pid and wait until killed by a caller.
+mkpipe is intended to be used from a bash script when there is a need to
+collect an output from more than one descriptor separately(i.e. stdout and
+stderr). For example, if we have some program(or another script) that output
+to stdout some needed data on success or output to stderr an error message on
+failure and these messages are intermixed. Or we need to run many programs
+in a subshell and process stdout and stderr separately.
+.PP
+After start mkpipe create a pipe with descriptor 3 connected to it read end
+and descriptor 4 connected to it write end.
+After that, it reports it own pid to stdout and
+wait with help of pause() call.
+.PP
+There is mkpipe.sh which is usually located in /usr/lib/mkpipe/.
+This utility script contains 3 useful functions which simplify using of
+mkpipe in your scripts. See MKPIPE.SH section below.
+.\"
+.SH OPTIONS
+.TP
+\fB\-B\fR
+create pipe with O_NONBLOCK
+.TP
+\fB\-c\fR
+create pipe with O_CLOEXEC
+.TP
+\fB\-s\fR BYTES
+set pipe size to BYTES
+.TP
+\fB\-v\fR
+show program version
+.TP
+\fB\-h\fR
+show this help
+.\"
+.SH "MKPIPE.SH"
+Functions are:
+.TP
+mkpipe \fIREAD_FD\fR \fIWRITE_FD\fR
+create a pipe with help of mkpipe binary with READ_FD descriptor number connected
+to read end of a pipe and WRITE_FD descriptor number connected to write end of
+a pipe.
+.TP
+rmpipe \fIREAD_FD\fR \fIWRITE_FD\fR
+close a specified file descriptors.
+.TP
+read_all \fIVAR_NAME\fR
+read all available data from stdin.
+.\"
+.PP
+Include mkpipe.sh in your script:
+.RS 4
+.nf
+\&. /usr/lib/mkpipe/mkpipe.sh
+.fi
+.RE
+.\"
+.SH EXAMPLES
+This script:
+.sp
+.RS 4
+.nf
+\&. /usr/lib/mkpipe/mkpipe.sh
+
+# pipe for a data
+mkpipe 5 6
+# pipe for an error info
+mkpipe 7 8
+
+({
+        echo some data here
+        echo error info >&2
+        echo yet another data
+        echo error again >&2
+        exit 1
+} 1>&6 2>&8)
+ecode=$?
+read_all data <&5
+read_all emsg <&7
+
+echo "error from the child: $emsg"
+echo "data from the child: $data"
+
+# In this case this is not actually needed.
+rmpipe 5 6
+rmpipe 7 8
+.fi
+.RE
+.sp
+is output:
+.sp
+.RS 4
+.nf
+error from the child: error info
+error again
+
+data from the child: some data here
+yet another data
+
+.fi
+.RE
+.\"
+.SH AUTHORS
+Oleg Nemanov, Z-Wave.Me
+.br
+<lego12239@yandex.ru>
+.\"
+.SH SPONSORS
+Z-Wave.Me (https://z-wave.me)
+.\"
+.SH "REPORTING BUGS"
+via github - https://github.com/Z-Wave-Me/mkpipe
