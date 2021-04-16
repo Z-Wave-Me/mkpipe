@@ -1,6 +1,6 @@
 /*
  *  mkpipe - make a pipe and wait until killed
- *  Copyright (C) 2021  Oleg Nemanov <lego12239@yandex.ru>
+ *  Copyright (C) 2021  Oleg Nemanov, Z-Wave.Me <lego12239@yandex.ru>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
