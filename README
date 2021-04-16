@@ -105,3 +105,8 @@ But look at sleep call. Here we have a race condition.
 How big it should be in order to be guaranteed to work correctly?
 So, we need something that do not require a magic with timeout
 tweaking.
+
+Sponsors
+========
+
+Z-Wave.Me
