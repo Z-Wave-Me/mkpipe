@@ -106,6 +106,17 @@ How big it should be in order to be guaranteed to work correctly?
 So, we need something that do not require a magic with timeout
 tweaking.
 
+How it should be done right
+===========================
+
+While mkpipe can be used for long time data channel between a script and a
+child, for a simple output collecting it better to use some virtual FS. Like
+/dev/tcp. May be /dev/env or /dev/vars. I.e. script may looks like:
+
+({commands here} >/dev/vars/data 2>/dev/vars/emsg 3>emsg_client 4>dbgmsg)
+
+after that we have variables data, emsg, emsg_client and dbgmsg.
+
 Sponsors
 ========
 
