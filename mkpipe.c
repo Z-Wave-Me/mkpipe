@@ -122,13 +122,7 @@ main(int argc, char **argv)
 		printf("%d", pid);
 		exit(0);
 	}
-		
-	pid = setsid();
-	if (pid < 0) {
-		/* Send to syslog? */
-		fprintf(stderr, "setsid error: %s\n", strerror(errno));
-		exit(1);
-	}
+
 	close(0);
 	close(1);
 	close(2);
