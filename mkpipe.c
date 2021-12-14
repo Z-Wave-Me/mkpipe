@@ -42,11 +42,8 @@ process_opts(int argc, char **argv)
 		prgname++;
 
 	flags = 0;
-	while ((ret = getopt(argc, argv, "cBs:hv")) != -1) {
+	while ((ret = getopt(argc, argv, "Bs:hv")) != -1) {
 		switch (ret) {
-		case 'c':
-			flags |= O_CLOEXEC;
-			break;
 		case 'B':
 			flags |= O_NONBLOCK;
 			break;
@@ -66,7 +63,6 @@ process_opts(int argc, char **argv)
 			  "Make a pipe and wait\n\n"
 			  " OPTIONS:\n"
 			  "  -B        create pipe with O_NONBLOCK\n"
-			  "  -c        create pipe with O_CLOEXEC\n"
 			  "  -s BYTES  set pipe size to BYTES\n"
 			  "  -h        show this help\n"
 			  "  -v        show program version\n", prgname);
