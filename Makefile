@@ -1,7 +1,7 @@
 .PHONY: clean-all clean install uninstall
 
 mkpipe: mkpipe.c
-	gcc -Wall -o $@ $<
+	gcc -Wall -Wno-main -o $@ $<
 
 clean-all: clean
 	rm -f mkpipe
