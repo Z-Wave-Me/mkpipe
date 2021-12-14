@@ -27,7 +27,7 @@
 
 #define VERSION "1.0.0"
 
-int flags, psize;
+int flags, is_info, psize;
 
 void
 process_opts(int argc, char **argv)
@@ -42,10 +42,13 @@ process_opts(int argc, char **argv)
 		prgname++;
 
 	flags = 0;
-	while ((ret = getopt(argc, argv, "Bs:hv")) != -1) {
+	while ((ret = getopt(argc, argv, "Bis:hv")) != -1) {
 		switch (ret) {
 		case 'B':
 			flags |= O_NONBLOCK;
+			break;
+		case 'i':
+			is_info = 1;
 			break;
 		case 's':
 			psize = strtol(optarg, &ptr, 10);
@@ -63,6 +66,7 @@ process_opts(int argc, char **argv)
 			  "Make a pipe and wait\n\n"
 			  " OPTIONS:\n"
 			  "  -B        create pipe with O_NONBLOCK\n"
+			  "  -i        show actual pipe size\n"
 			  "  -s BYTES  set pipe size to BYTES\n"
 			  "  -h        show this help\n"
 			  "  -v        show program version\n", prgname);
@@ -74,7 +78,7 @@ process_opts(int argc, char **argv)
 void
 main(int argc, char **argv)
 {
-	int ret, fd, fds[2];
+	int ret, fd, fds[2], psize_cur;
 	pid_t pid;
 
 	process_opts(argc, argv);
@@ -87,18 +91,22 @@ main(int argc, char **argv)
 	}
 	if (psize) {
 		ret = fcntl(fds[0], F_SETPIPE_SZ, psize);
-		if (ret < 0) {
+		if ((ret < 0) && !is_info) {
 			fprintf(stderr, "set pipe size error: %s\n", strerror(errno));
 			exit(1);
 		}
-		ret = fcntl(fds[0], F_GETPIPE_SZ);
-		if (ret < 0) {
+	}
+	if (psize || is_info) {
+		psize_cur = fcntl(fds[0], F_GETPIPE_SZ);
+		if (psize_cur < 0) {
 			fprintf(stderr, "get pipe size error: %s\n", strerror(errno));
 			exit(1);
 		}
-		if (ret < psize) {
+	}
+	if (psize && !is_info) {
+		if (psize_cur < psize) {
 			fprintf(stderr, "result size of pipe is smaller than requested: %d\n",
-			  ret);
+			  psize_cur);
 			exit(1);
 		}
 	}
@@ -120,6 +128,8 @@ main(int argc, char **argv)
 		exit(1);
 	} else if (pid > 0) {
 		printf("%d", pid);
+		if (is_info)
+			printf("\n%d", psize_cur);
 		exit(0);
 	}
 
