@@ -79,34 +79,6 @@ main(int argc, char **argv)
 
 	process_opts(argc, argv);
 
-	/* Reserve 3 and 4 fd */
-	close(3);
-	close(4);
-	fd = open("/dev/null", O_RDONLY);
-	if (fd < 0) {
-		fprintf(stderr, "open error: %s\n", strerror(errno));
-		exit(1);
-	}
-	if (fd != 3) {
-		fd = dup2(fd, 3);
-		if (fd < 0) {
-			fprintf(stderr, "dup2 after open error: %s\n", strerror(errno));
-			exit(1);
-		}
-	}
-	fd = open("/dev/null", O_WRONLY);
-	if (fd < 0) {
-		fprintf(stderr, "open error: %s\n", strerror(errno));
-		exit(1);
-	}
-	if (fd != 4) {
-		fd = dup2(fd, 4);
-		if (fd < 0) {
-			fprintf(stderr, "dup2 after open error: %s\n", strerror(errno));
-			exit(1);
-		}
-	}
-
 	/* Create a pipe */
 	ret = pipe2(fds, flags);
 	if (ret < 0) {
