@@ -10,7 +10,7 @@ fi
 #  $2 - write fd
 mkpipe()
 {
-	local PID1 PID2
+	local PID
 	local FD_READ FD_WRITE
 
 	FD_READ=$1
