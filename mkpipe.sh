@@ -1,5 +1,9 @@
 # path to mkpipe binary
-MKPIPE_BIN=/usr/local/bin/mkpipe
+MKPIPE_BIN=${MKPIPE_BIN:-/usr/local/bin/mkpipe}
+if [ ! -x "$MKPIPE_BIN" ]; then
+	echo "mkpipe binary path is wrong" >&2
+	exit 1
+fi
 
 # Create a pipe
 #  $1 - read fd
