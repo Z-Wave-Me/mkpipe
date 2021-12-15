@@ -8,16 +8,23 @@ fi
 # Create a pipe
 #  $1 - read fd
 #  $2 - write fd
+#  $3 - mkpipe options
+# A second string from mkpipe output is placed into RET.
 mkpipe()
 {
 	local PID
 	local FD_READ FD_WRITE
+	local MKPIPE_OPTS="$3"
+	local ret_
 
 	FD_READ=$1
 	FD_WRITE=$2
-	PID=`$MKPIPE_BIN`
+	PID=`$MKPIPE_BIN $MKPIPE_OPTS`
+	ret_=`echo "$PID" | sed -ne '2 p'`
+	PID=`echo "$PID" | sed -ne '1 p'`
 	eval "exec $FD_READ</proc/$PID/fd/3 $FD_WRITE>/proc/$PID/fd/4"
 	kill $PID
+	RET="$ret_"
 }
 
 # Close a pipe file descriptors(actually any fd, not only pipe fd)
