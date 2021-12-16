@@ -30,7 +30,7 @@ Options
 =======
 
 -B       create pipe with O_NONBLOCK
--c       create pipe with O_CLOEXEC
+-i       show actual pipe size
 -s BYTES set pipe size to BYTES
 -v       show program version
 -h       show this help
@@ -44,22 +44,42 @@ Include mkpipe.sh in your script:
 
 Then use it:
 
+# data channel
 mkpipe 5 6
+# error channel
+mkpipe 7 8
+# debug channel
+mkpipe 9 10
 ({
   SOME
   SCRIPT
   HERE
-} 1>&6)
+} 1>&6 2>&8 3>&10)
 read_all data <&5
+read_all emsg <&7
+read_all dbgmsg <&9
 
 echo $data
+if [ "$emsg" ]; then
+	echo "ERR: $emsg"
+fi
+echo "DBG: $dbgmsg"
 
 rmpipe 5 6
+rmpipe 7 8
+rmpipe 9 10
+
+NOTE: for this style of using we must sure that pipe size is enough
+to hold all data for a channel! Because, a child run synchronously and
+only after it is finished we start to read all outputed data.
+
+See ex_logger.sh for example of creation a longlive children with pipe
+connection between it and a script.
 
 Examples
 ========
 
-See example.sh.
+See example.sh, ex_logger.sh.
 
 Rationale
 =========

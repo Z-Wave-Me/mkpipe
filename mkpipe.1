@@ -31,8 +31,8 @@ mkpipe in your scripts. See MKPIPE.SH section below.
 \fB\-B\fR
 create pipe with O_NONBLOCK
 .TP
-\fB\-c\fR
-create pipe with O_CLOEXEC
+\fB\-i\fR
+show actual pipe size
 .TP
 \fB\-s\fR BYTES
 set pipe size to BYTES
@@ -46,10 +46,14 @@ show this help
 .SH "MKPIPE.SH"
 Functions are:
 .TP
-mkpipe \fIREAD_FD\fR \fIWRITE_FD\fR
+mkpipe \fIREAD_FD\fR \fIWRITE_FD\fR \fIMKPIPE_OPTS\fR
 create a pipe with help of mkpipe binary with READ_FD descriptor number connected
 to read end of a pipe and WRITE_FD descriptor number connected to write end of
-a pipe.
+a pipe. MKPIPE_OPTS arg is passed to mkpipe binary as is.
+.TP
+mkpipe2 \fIVAR_NAME_FOR_READ_FD\fR \fIVAR_NAME_FOR_WRITE_FD\fR \fIMKPIPE_OPTS\fR
+works like mkpipe function except that get as arguments variable names for saving
+fd numbers instead of fd numbers by itself.
 .TP
 rmpipe \fIREAD_FD\fR \fIWRITE_FD\fR
 close a specified file descriptors.
