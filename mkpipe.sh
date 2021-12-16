@@ -9,7 +9,7 @@ fi
 #  $1 - read fd
 #  $2 - write fd
 #  $3 - mkpipe options
-# A second string from mkpipe output is placed into RET.
+# A second line from mkpipe output is placed into RET.
 mkpipe()
 {
 	local PID
