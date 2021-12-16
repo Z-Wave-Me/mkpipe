@@ -1,8 +1,8 @@
 #!/bin/bash
 
-. mkpipe.sh
 # Just for running this example from the source dir.
 MKPIPE_BIN=./mkpipe
+. mkpipe.sh
 
 # pipe for a data
 mkpipe 5 6
