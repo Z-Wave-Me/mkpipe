@@ -15,9 +15,9 @@ After start mkpipe create a pipe with descriptor 3 connected to it read
 end and descriptor 4 connected to it write end.  After that, it reports
 it own pid to stdout and wait with help of pause() call.
 
-There is mkpipe.sh which is usually located in /usr/lib/mkpipe/.   This
-utility  script  contains  3  useful  functions which simplify using of
-mkpipe in your scripts. See MKPIPE.SH section below.
+There is mkpipe.sh which is usually located in /usr/local/lib/mkpipe/.
+This utility  script  contains  3  useful  functions which simplify
+using of mkpipe in your scripts. See MKPIPE.SH section below.
 
 
 Install
@@ -40,7 +40,7 @@ Using
 
 Include mkpipe.sh in your script:
 
-. /usr/lib/mkpipe/mkpipe.sh
+. /usr/local/lib/mkpipe/mkpipe.sh
 
 Then use it:
 
@@ -99,7 +99,7 @@ isn't enough for this case. We can use files as a temporary storage for an outpu
 
 But with read-only fs this doesn't work.
 
-We can use the next shell function:
+We can use the next shell function(thanks to htamas from stackexchange):
 
 # Create a pipe
 #  $1 - read fd
@@ -123,6 +123,11 @@ mkpipe()
 
 But look at sleep call. Here we have a race condition.
 How big it should be in order to be guaranteed to work correctly?
+The problem is we can't guarantee that 2 tail binaries are launched
+before we reach eval, due to concurrency. Here "sleep 1s" just
+a try to solve this problem and give a bash enough time to complete
+with 2 tail binaries.
+
 So, we need something that do not require a magic with timeout
 tweaking.
 
