@@ -24,7 +24,7 @@ Install
 =======
 
 make install command will install mkpipe binary in /usr/local/bin/
-and mkpipe.sh in /usr/lib/mkpipe/.
+and mkpipe.sh in /usr/local/lib/mkpipe/.
 
 Options
 =======
